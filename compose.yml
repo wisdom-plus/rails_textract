@@ -1,0 +1,30 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./:/rails_textract:delegated
+    ports:
+      - "3000:3000"
+      - "3036:3036"
+    tty: true
+    stdin_open: true
+    environment:
+      TZ: Asia/Tokyo
+      LANG: C.UTF-8
+      RAILS_ENV: development
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0
+    volumes:
+      - db_data:/var/lib/mysql:delegated
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+volumes:
+  db_data:
+    driver: local
