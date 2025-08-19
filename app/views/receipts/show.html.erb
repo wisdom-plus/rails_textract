@@ -1,0 +1,59 @@
+<div class="mb-6 flex items-center gap-3">
+  <%= link_to "← 一覧へ", receipts_path, class: "rounded-xl bg-neutral-100 px-3 py-1.5 text-sm" %>
+  <h1 class="text-2xl font-bold">レシート詳細</h1>
+</div>
+
+<div class="grid gap-6 md:grid-cols-[360px_1fr]">
+  <div class="overflow-hidden rounded-2xl border bg-white p-3 shadow-sm">
+    <% if @receipt.image.attached? %>
+      <%= image_tag @receipt.image.variant(resize_to_limit: [800,800]), class: "max-h-[420px] w-full object-contain" %>
+    <% else %>
+      <div class="grid h-[420px] place-items-center bg-neutral-50 text-neutral-400">画像プレビュー</div>
+    <% end %>
+  </div>
+
+  <div class="space-y-4">
+    <div class="rounded-2xl border bg-white p-4 shadow-sm">
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div class="text-neutral-500">店舗名</div><div class="font-medium"><%= @receipt.store_name || "-" %></div>
+        <div class="text-neutral-500">購入日</div><div class="font-medium"><%= @receipt.purchase_date&.in_time_zone("Asia/Tokyo")&.strftime("%Y/%m/%d %H:%M") || "-" %></div>
+        <div class="text-neutral-500">アップロード</div><div class="font-medium"><%= @receipt.uploaded_at&.in_time_zone("Asia/Tokyo")&.strftime("%Y/%m/%d %H:%M") %></div>
+        <div class="text-neutral-500">合計</div><div class="font-semibold"><%= @receipt.total ? number_to_currency(@receipt.total, unit: @receipt.currency || "JPY") : "-" %></div>
+        <div class="text-neutral-500">ステータス</div><div class="font-medium"><%= @receipt.status %></div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border bg-white p-4 shadow-sm">
+      <h2 class="mb-3 text-lg font-semibold">明細（OCR）</h2>
+      <% items = (@receipt.ocr_json || {})["items"] || [] %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead>
+            <tr class="border-b bg-neutral-50 text-left">
+              <th class="px-3 py-2 font-medium">品目</th>
+              <th class="px-3 py-2 font-medium">数量</th>
+              <th class="px-3 py-2 font-medium">単価</th>
+              <th class="px-3 py-2 font-medium">金額</th>
+              <th class="px-3 py-2 font-medium">信頼度</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if items.empty? %>
+              <tr><td colspan="5" class="px-3 py-6 text-center text-neutral-500">明細がありません</td></tr>
+            <% else %>
+              <% items.each do |it| %>
+                <tr class="border-b last:border-none">
+                  <td class="px-3 py-2"><%= it["description"] || "-" %></td>
+                  <td class="px-3 py-2"><%= it["quantity"] || "-" %></td>
+                  <td class="px-3 py-2"><%= it["unit_price"] ? number_to_currency(it["unit_price"], unit: @receipt.currency || "JPY") : "-" %></td>
+                  <td class="px-3 py-2"><%= it["line_total"] ? number_to_currency(it["line_total"], unit: @receipt.currency || "JPY") : "-" %></td>
+                  <td class="px-3 py-2"><%= it["confidence"] ? "#{it["confidence"].round(1)}%" : "-" %></td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+<div class="mb-6 flex items-center justify-between">
+  <h1 class="text-2xl font-bold">レシート一覧</h1>
+  <%= link_to "アップロード", new_receipt_path, class: "btn-primary" %>
+</div>
+
+<ul class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+  <% @receipts.each do |r| %>
+    <li class="group rounded-2xl border bg-white p-4 shadow-sm transition hover:shadow-md">
+      <%= link_to receipt_path(r), class: "block" do %>
+        <div class="flex items-start gap-3">
+          <div class="h-16 w-16 flex-none overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-black/5 grid place-items-center text-neutral-400">
+            <% if r.image.attached? %>
+              <%= image_tag r.image.variant(resize_to_limit: [64,64]) %>
+            <% else %>no img<% end %>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-3">
+              <div class="truncate text-base font-semibold"><%= r.store_name.presence || "(店舗名不明)" %></div>
+              <span class="text-xs text-neutral-500"><%= r.purchase_date&.in_time_zone("Asia/Tokyo")&.strftime("%Y/%m/%d %H:%M") || "-" %></span>
+            </div>
+            <div class="mt-1 flex items-center justify-between text-sm text-neutral-600">
+              <div>合計: <span class="font-medium text-neutral-900"><%= r.total ? number_to_currency(r.total, unit: r.currency || "JPY") : "-" %></span></div>
+              <div class="rounded-full bg-neutral-100 px-2 py-0.5 text-xs"><%= r.status %></div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </li>
+  <% end %>
+</ul>

@@ -1,0 +1,6 @@
+<h1 class="mb-6 text-2xl font-bold">レシートアップロード</h1>
+
+<%= form_with model: @receipt, url: receipts_path, class: "rounded-2xl border bg-white p-4 shadow-sm space-y-4" do |f| %>
+  <%= f.file_field :image, class: 'block w-full rounded-xl border p-2' %>
+  <%= f.submit 'アップロード', class: 'btn-primary' %>
+<% end %>
